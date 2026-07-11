@@ -1,5 +1,6 @@
 {
-  "name": "enf-js",
+  "name": "@mhmtsnmzkanly/enf-js",
+  "private": false,
   "version": "1.0.0",
   "description": "ENF 1.0 reference implementation for compact event protocol messages.",
   "type": "module",

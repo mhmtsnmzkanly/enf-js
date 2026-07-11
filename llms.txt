@@ -1,0 +1,69 @@
+# ENF
+
+> ENF (Event Notation Format) is an event-first communication notation for
+> ordered protocol messages over WebSocket, TCP, IPC, event buses, and logs. It
+> is a compact protocol format, not a general-purpose programming language or a
+> drop-in replacement for JSON.
+
+## Source of Truth
+
+- [docs/specification.md](./docs/specification.md) — normative ENF 1.0
+  specification. Grammar, value semantics, errors, limits, and canonical form
+  are defined here.
+
+The specification takes precedence over README examples and implementation
+details. Models MUST NOT infer grammar rules from source code when the
+specification defines the behavior.
+
+## Documentation
+
+- [README.md](./README.md) — installation, quick start, runtime examples, API,
+  CLI, limits, and security guidance.
+- [package.json](./package.json) — package metadata, exports, engines, and
+  development commands.
+
+## Implementation
+
+- [src/index.js](./src/index.js) — JavaScript reference implementation's public
+  entry point and exports.
+- The library is ESM-only, has no runtime dependencies, and targets modern
+  browsers, Node.js, and Deno.
+- Public operations include `parse`, `tryParse`, `stringify`, `format`,
+  `DEFAULT_LIMITS`, and the ENF error classes.
+
+## Conformance
+
+- [conformance/valid](./conformance/valid) — valid ENF fixtures.
+- [conformance/invalid](./conformance/invalid) — invalid ENF fixtures and
+  expected error codes.
+- [conformance/canonical](./conformance/canonical) — canonical formatting
+  fixtures.
+
+These fixtures are implementation-independent JSON test data.
+
+## CLI
+
+- [bin/enf.js](./bin/enf.js) — Node.js-only CLI wrapper around the library.
+- Supported commands are `enf check` and `enf format`, including
+  `enf format --write` and stdin input.
+- The CLI requires Node.js 18 or newer and uses Node filesystem/process APIs.
+  It is not the browser or Deno library API.
+
+## Important Constraints
+
+- Every statement MUST end with `;`; newlines do not terminate statements.
+- Event names are ASCII, case-sensitive namespace names matching
+  `^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)*$`. Dots are namespace separators, but
+  the complete event name remains one string.
+- Values are `null`, booleans, finite IEEE-754 binary64 numbers, strings,
+  arrays, and objects. There is no binary value type.
+- Numbers use JSON lexical grammar; integer-valued binary64 results MUST be
+  safe integers. Negative zero is significant.
+- Strings use JSON escapes. The reference JavaScript string limit is measured
+  after decoding in UTF-16 code units, not UTF-8 bytes or Unicode scalar values.
+- Object keys use the lowercase identifier grammar; quoted keys, duplicate keys,
+  comments, tuple syntax, and trailing commas are not ENF 1.0 features.
+- Parsing rejects invalid input rather than returning a partial successful
+  document. Resource-limit failures are distinct from syntax failures.
+- `stringify()` validates in-process JavaScript values but is not a sandbox for
+  hostile live objects or Proxy traps.

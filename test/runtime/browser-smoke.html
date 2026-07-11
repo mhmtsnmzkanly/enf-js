@@ -1,0 +1,11 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>ENF browser ESM smoke</title>
+<body>pending</body>
+<script type="module">
+  import { parse, stringify } from '../../dist/index.min.js';
+  const events = parse('runtime.browser {ok:true};');
+  const output = stringify(events);
+  if (output !== 'runtime.browser {ok:true};') throw new Error(output);
+  document.body.textContent = 'PASS';
+</script>

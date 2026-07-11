@@ -1,0 +1,10 @@
+[
+  {"name":"uppercase event","source":"Chat.message;","error":"E_INVALID_EVENT_NAME"},
+  {"name":"empty namespace segment","source":"chat..message;","error":"E_INVALID_EVENT_NAME"},
+  {"name":"missing terminator","source":"ping","error":"E_EXPECTED_SEMICOLON"},
+  {"name":"bareword string","source":"status ready;","error":"E_UNEXPECTED_TOKEN"},
+  {"name":"duplicate key","source":"x {id:1,id:2};","error":"E_DUPLICATE_KEY"},
+  {"name":"trailing comma","source":"x [1,];","error":"E_UNEXPECTED_TOKEN"},
+  {"name":"unsafe integer","source":"x 9007199254740992;","error":"E_NUMBER_RANGE"},
+  {"name":"lone surrogate","source":"x \"\\uD800\";","error":"E_INVALID_STRING"}
+]

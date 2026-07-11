@@ -1,0 +1,6 @@
+[
+  {"name":"compact object","source":"user.update{id:17};","canonical":"user.update {\n  id: 17\n};\n"},
+  {"name":"nested array","source":"data[1,[2,3]];","canonical":"data [\n  1,\n  [\n    2,\n    3\n  ]\n];\n"},
+  {"name":"multiple events","source":"ping; pong;","canonical":"ping;\npong;\n"},
+  {"name":"empty containers","source":"a{};b[];","canonical":"a {};\nb [];\n"}
+]

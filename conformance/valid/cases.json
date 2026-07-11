@@ -1,0 +1,10 @@
+[
+  {"name":"empty document","source":"","expected":[]},
+  {"name":"valueless event","source":"ping;","expected":[{"name":"ping"}]},
+  {"name":"namespaced event","source":"chat.message.sent;","expected":[{"name":"chat.message.sent"}]},
+  {"name":"scalar values","source":"a null;b true;c -12;d 1.5e2;e \"x\";","expected":[{"name":"a","value":null},{"name":"b","value":true},{"name":"c","value":-12},{"name":"d","value":150},{"name":"e","value":"x"}]},
+  {"name":"array","source":"data [1,\"two\",false,null];","expected":[{"name":"data","value":[1,"two",false,null]}]},
+  {"name":"object","source":"user.update {id:17,active:true};","expected":[{"name":"user.update","value":{"id":17,"active":true}}]},
+  {"name":"nested","source":"data {items:[{id:1},{id:2}]};","expected":[{"name":"data","value":{"items":[{"id":1},{"id":2}]}}]},
+  {"name":"unicode string","source":"text \"merhaba 😀\";","expected":[{"name":"text","value":"merhaba 😀"}]}
+]

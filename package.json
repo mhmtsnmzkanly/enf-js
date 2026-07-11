@@ -1,0 +1,44 @@
+{
+  "name": "enf-js",
+  "version": "1.0.0",
+  "description": "ENF 1.0 reference implementation for compact event protocol messages.",
+  "type": "module",
+  "main": "./src/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "default": "./src/index.js"
+    }
+  },
+  "bin": {
+    "enf": "./bin/enf.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:coverage": "node --experimental-test-coverage --test",
+    "bench": "node bench/run.js",
+    "lint": "node tools/lint.js",
+    "typecheck": "tsc -p tsconfig.json",
+    "build": "esbuild src/index.js --bundle --minify --format=esm --outfile=dist/index.min.js",
+    "build:types": "node tools/build-types.js",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build && npm run build:types"
+  },
+  "files": [
+    "src",
+    "dist",
+    "bin",
+    "docs",
+    "conformance"
+  ],
+  "sideEffects": false,
+  "keywords": ["event", "protocol", "serialization", "websocket", "ipc"],
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "^0.28.1",
+    "typescript": "^7.0.2"
+  }
+}

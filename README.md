@@ -101,7 +101,7 @@ import {
   parse,
   stringify,
   format,
-} from '@mhmtsnmzkanly/enf';
+} from '@mhmtsnmzkanly/enf-js';
 
 const events = parse('message.send {id:17};ping;');
 
@@ -159,7 +159,7 @@ message.send {
     parse,
     stringify,
     format,
-  } from 'https://cdn.jsdelivr.net/npm/@mhmtsnmzkanly/enf@1.0.0/dist/index.min.js';
+  } from 'https://cdn.jsdelivr.net/npm/@mhmtsnmzkanly/enf-js@1.0.0/dist/index.min.js';
 
   const events = parse(`
     app.started {version: "1.0.0"};
@@ -195,7 +195,7 @@ The repository contains a browser smoke fixture. Dynamic Chromium execution was 
 import {
   parse,
   stringify,
-} from '@mhmtsnmzkanly/enf';
+} from '@mhmtsnmzkanly/enf-js';
 
 const events = parse('node.ready;');
 
@@ -214,7 +214,7 @@ Deno can load the package through npm compatibility:
 import {
   parse,
   stringify,
-} from 'npm:@mhmtsnmzkanly/enf@1.0.0';
+} from 'npm:@mhmtsnmzkanly/enf-js@1.0.0';
 
 const events = parse('deno.ready;');
 
@@ -226,10 +226,43 @@ The jsDelivr ESM bundle can also be imported by URL:
 ```js
 import {
   parse,
-} from 'https://cdn.jsdelivr.net/npm/@mhmtsnmzkanly/enf@1.0.0/dist/index.min.js';
+} from 'https://cdn.jsdelivr.net/npm/@mhmtsnmzkanly/enf-js@1.0.0/dist/index.min.js';
 
 console.log(parse('deno.ready;'));
 ```
+
+## WebSocket Chat Demo
+
+A complete WebSocket chat demo is available under [`demo/`](./demo). It shows
+ENF parsing, serialization, formatting, multiple statements per frame,
+structured errors, parser limits, presence and typing events, message history,
+and Node.js/Deno interoperability. The browser client is a self-contained
+[`client.html`](./demo/client.html) file. It is an educational, in-memory demo,
+not a production chat service.
+
+### Node.js
+
+```sh
+cd demo
+npm install
+npm run start:node
+```
+
+### Deno
+
+```sh
+cd demo
+npm run start:deno
+```
+
+Then open:
+
+```text
+http://localhost:8090
+```
+
+See [`demo/README.md`](./demo/README.md) for the event reference, protocol
+inspector notes, and security boundaries.
 
 ## Syntax
 
@@ -545,7 +578,7 @@ import {
   ENFSyntaxError,
   ENFTypeError,
   ENFLimitError,
-} from '@mhmtsnmzkanly/enf';
+} from '@mhmtsnmzkanly/enf-js';
 ```
 
 ### `parse(source, limits?)`
@@ -670,7 +703,7 @@ Event order is always preserved.
 The CLI is available after installing the package:
 
 ```sh
-npm install --global @mhmtsnmzkanly/enf
+npm install --global @mhmtsnmzkanly/enf-js
 ```
 
 Alternatively, use it from a local project installation:
@@ -889,8 +922,8 @@ npm test
 Clone the repository and install development dependencies:
 
 ```sh
-git clone https://github.com/mhmtsnmzkanly/enf.git
-cd enf
+git clone https://github.com/mhmtsnmzkanly/enf-js.git
+cd enf-js
 npm install
 ```
 

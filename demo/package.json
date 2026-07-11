@@ -1,0 +1,14 @@
+{
+  "name": "enf-websocket-chat-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "start:node": "node server.js",
+    "start:deno": "deno run --allow-net --allow-read server.js"
+  },
+  "dependencies": {
+    "@mhmtsnmzkanly/enf-js": "1.0.0",
+    "ws": "^8.21.0"
+  }
+}

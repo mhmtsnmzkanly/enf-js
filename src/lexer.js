@@ -95,7 +95,7 @@ export class Lexer {
         if (unit >= 0xdc00 && unit <= 0xdfff) this.fail('Lone low surrogate in string', 'E_INVALID_STRING', this.location());
         if (unit >= 0xd800 && unit <= 0xdbff) {
           const low = this.peek(1)?.charCodeAt(0);
-          if (low < 0xdc00 || low > 0xdfff) this.fail('Lone high surrogate in string', 'E_INVALID_STRING', this.location());
+          if (low === undefined || low < 0xdc00 || low > 0xdfff) this.fail('Lone high surrogate in string', 'E_INVALID_STRING', this.location());
           value += this.advance() + this.advance();
         } else value += this.advance();
       }

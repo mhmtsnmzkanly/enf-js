@@ -8,12 +8,12 @@ export class ENFError extends Error {
 }
 
 export class ENFSyntaxError extends ENFError {
-  /** @param {string} message @param {string} code @param {{offset:number,line:number,column:number}} location */
-  constructor(message, code, location) {
+  /** @param {string} message @param {string} code @param {{offset?:number,line?:number,column?:number}} [location] */
+  constructor(message, code, location = {}) {
     super(message, code);
-    this.offset = location.offset;
-    this.line = location.line;
-    this.column = location.column;
+    this.offset = location?.offset ?? 0;
+    this.line = location?.line ?? 1;
+    this.column = location?.column ?? 1;
   }
 }
 

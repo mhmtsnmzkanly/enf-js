@@ -60,11 +60,17 @@ function renderValue(value, pretty, level, ancestors, state) {
 function renderArray(value, pretty, level, ancestors, state) {
   if (value.length > DEFAULT_LIMITS.maxArrayLength) throw new ENFLimitError('Maximum array length exceeded', 'E_MAX_ARRAY_LENGTH');
   const ownKeys = Reflect.ownKeys(value);
-  if (ownKeys.some((k) => typeof k === 'symbol' || (k !== 'length' && (!/^\d+$/.test(String(k)) || Number(k) >= value.length)))) {
+  if (ownKeys.some((k) => typeof k === 'symbol' || (k !== 'length' && (!/^(?:0|[1-9]\d*)$/.test(String(k)) || Number(k) >= value.length)))) {
     fail('Arrays cannot contain non-index properties', 'E_INVALID_ARRAY');
   }
-  for (let i = 0; i < value.length; i++) if (!Object.hasOwn(value, i)) fail('Sparse arrays are not supported', 'E_SPARSE_ARRAY');
-  const items = value.map((item) => renderValue(item, pretty, level + 1, ancestors, state));
+  const items = [];
+  for (let i = 0; i < value.length; i++) {
+    if (!Object.hasOwn(value, i)) fail('Sparse arrays are not supported', 'E_SPARSE_ARRAY');
+    const desc = Object.getOwnPropertyDescriptor(value, i);
+    if (!desc?.enumerable) fail('Non-enumerable array items are not supported', 'E_INVALID_ARRAY');
+    if (!Object.hasOwn(desc, 'value')) fail('Accessor properties on arrays are not supported', 'E_INVALID_ARRAY');
+    items.push(renderValue(desc.value, pretty, level + 1, ancestors, state));
+  }
   if (!pretty || items.length === 0) return `[${items.join(',')}]`;
   const indent = '  '.repeat(level + 1);
   return `[\n${items.map((item) => indent + item).join(',\n')}\n${'  '.repeat(level)}]`;
@@ -90,6 +96,16 @@ function renderObject(value, pretty, level, ancestors, state) {
 function renderDocument(events, pretty) {
   if (!Array.isArray(events)) fail('stringify() expects an array of events', 'E_INVALID_ARGUMENT');
   if (events.length > DEFAULT_LIMITS.maxStatements) throw new ENFLimitError('Maximum statement count exceeded', 'E_MAX_STATEMENTS');
+  const ownKeys = Reflect.ownKeys(events);
+  if (ownKeys.some((k) => typeof k === 'symbol' || (k !== 'length' && (!/^(?:0|[1-9]\d*)$/.test(String(k)) || Number(k) >= events.length)))) {
+    fail('Event array cannot contain non-index properties', 'E_INVALID_ARGUMENT');
+  }
+  for (let i = 0; i < events.length; i++) {
+    if (!Object.hasOwn(events, i)) fail('Sparse event arrays are not supported', 'E_SPARSE_ARRAY');
+    const desc = Object.getOwnPropertyDescriptor(events, i);
+    if (!desc?.enumerable) fail('Non-enumerable event items are not supported', 'E_INVALID_ARGUMENT');
+    if (!Object.hasOwn(desc, 'value')) fail('Accessor properties on event arrays are not supported', 'E_INVALID_ARGUMENT');
+  }
   const lines = events.map((event) => {
     if (event === null || typeof event !== 'object' || Array.isArray(event)) fail('Each event must be a plain record', 'E_INVALID_EVENT');
     const prototype = Object.getPrototypeOf(event);

@@ -5,7 +5,8 @@ import { runCli } from '../src/cli.js';
 
 function writeFileAtomic(file, content) {
   const targetFile = realpathSync(file);
-  const temporary = join(dirname(targetFile), `.${basename(targetFile)}.${process.pid}.tmp`);
+  const nonce = `${process.pid}.${Date.now()}.${Math.random().toString(36).slice(2)}`;
+  const temporary = join(dirname(targetFile), `.${basename(targetFile)}.${nonce}.tmp`);
   try {
     const mode = statSync(targetFile).mode & 0o777;
     writeFileSync(temporary, content, { encoding: 'utf8', mode });

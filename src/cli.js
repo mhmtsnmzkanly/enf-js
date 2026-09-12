@@ -36,8 +36,7 @@ export function runCli(args, io) {
     }
     return 0;
   } catch (error) {
-    if (!(error instanceof ENFError)) throw error;
     io.stderr(describe(error));
-    return 1;
+    return error instanceof ENFError ? 1 : 2;
   }
 }

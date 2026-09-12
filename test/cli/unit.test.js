@@ -35,3 +35,10 @@ test('valid --write uses the atomic IO operation', () => {
   assert.equal(runCli(['format', '--write', 'a.enf'], h.io), 0);
   assert.deepEqual(h.writes, [['a.enf', 'x {\n  id: 1\n};\n']]);
 });
+
+test('writeFileAtomic IO failure exits with code 2 and E_IO', () => {
+  const h = harness({ 'a.enf': 'x{id:1};' });
+  h.io.writeFileAtomic = () => { throw new Error('EACCES: permission denied'); };
+  assert.equal(runCli(['format', '--write', 'a.enf'], h.io), 2);
+  assert.match(h.output().stderr, /^E_IO: EACCES: permission denied\n$/);
+});

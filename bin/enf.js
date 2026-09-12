@@ -1,14 +1,15 @@
 #!/usr/bin/env node
-import { readFileSync, writeFileSync, renameSync, unlinkSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, renameSync, unlinkSync, statSync, realpathSync } from 'node:fs';
 import { dirname, basename, join } from 'node:path';
 import { runCli } from '../src/cli.js';
 
 function writeFileAtomic(file, content) {
-  const temporary = join(dirname(file), `.${basename(file)}.${process.pid}.tmp`);
+  const targetFile = realpathSync(file);
+  const temporary = join(dirname(targetFile), `.${basename(targetFile)}.${process.pid}.tmp`);
   try {
-    const mode = statSync(file).mode & 0o777;
+    const mode = statSync(targetFile).mode & 0o777;
     writeFileSync(temporary, content, { encoding: 'utf8', mode });
-    renameSync(temporary, file);
+    renameSync(temporary, targetFile);
   } catch (error) {
     try { unlinkSync(temporary); } catch {}
     throw error;

@@ -4,12 +4,15 @@ import { DEFAULT_LIMITS, EVENT_NAME, KEY } from './parser.js';
 /** @returns {never} */
 function fail(message, code = 'E_UNSUPPORTED_VALUE') { throw new ENFTypeError(message, code); }
 
+const MAX_SERIALIZED_NODES = 100_000;
+
 function quoteString(value) {
   let out = '"';
   for (let i = 0; i < value.length; i++) {
     const code = value.charCodeAt(i);
     const ch = value[i];
     if (code >= 0xd800 && code <= 0xdbff) {
+      if (i + 1 >= value.length) fail('String contains a lone high surrogate', 'E_INVALID_STRING');
       const low = value.charCodeAt(i + 1);
       if (low < 0xdc00 || low > 0xdfff) fail('String contains a lone high surrogate', 'E_INVALID_STRING');
       out += ch + value[++i];
@@ -33,7 +36,7 @@ function numberText(value) {
   return Object.is(value, -0) ? '-0' : String(value);
 }
 
-function renderValue(value, pretty, level, ancestors) {
+function renderValue(value, pretty, level, ancestors, state) {
   if (value === null) return 'null';
   if (typeof value === 'boolean') return value ? 'true' : 'false';
   if (typeof value === 'number') return numberText(value);
@@ -42,27 +45,32 @@ function renderValue(value, pretty, level, ancestors) {
     return quoteString(value);
   }
   if (typeof value !== 'object') fail(`Unsupported value type '${typeof value}'`);
+  if (++state.nodeCount > MAX_SERIALIZED_NODES) throw new ENFLimitError('Maximum serialized structure size exceeded', 'E_MAX_STRUCTURE');
   if (ancestors.has(value)) fail('Cyclic values are not supported', 'E_CYCLE');
   if (level >= DEFAULT_LIMITS.maxDepth) throw new ENFLimitError('Maximum nesting depth exceeded', 'E_MAX_DEPTH');
   ancestors.add(value);
   try {
-    if (Array.isArray(value)) return renderArray(value, pretty, level, ancestors);
+    if (Array.isArray(value)) return renderArray(value, pretty, level, ancestors, state);
     const prototype = Object.getPrototypeOf(value);
     if (prototype !== Object.prototype && prototype !== null) fail('Only plain objects are supported');
-    return renderObject(value, pretty, level, ancestors);
+    return renderObject(value, pretty, level, ancestors, state);
   } finally { ancestors.delete(value); }
 }
 
-function renderArray(value, pretty, level, ancestors) {
+function renderArray(value, pretty, level, ancestors, state) {
   if (value.length > DEFAULT_LIMITS.maxArrayLength) throw new ENFLimitError('Maximum array length exceeded', 'E_MAX_ARRAY_LENGTH');
+  const ownKeys = Reflect.ownKeys(value);
+  if (ownKeys.some((k) => typeof k === 'symbol' || (k !== 'length' && (!/^\d+$/.test(String(k)) || Number(k) >= value.length)))) {
+    fail('Arrays cannot contain non-index properties', 'E_INVALID_ARRAY');
+  }
   for (let i = 0; i < value.length; i++) if (!Object.hasOwn(value, i)) fail('Sparse arrays are not supported', 'E_SPARSE_ARRAY');
-  const items = value.map((item) => renderValue(item, pretty, level + 1, ancestors));
+  const items = value.map((item) => renderValue(item, pretty, level + 1, ancestors, state));
   if (!pretty || items.length === 0) return `[${items.join(',')}]`;
   const indent = '  '.repeat(level + 1);
   return `[\n${items.map((item) => indent + item).join(',\n')}\n${'  '.repeat(level)}]`;
 }
 
-function renderObject(value, pretty, level, ancestors) {
+function renderObject(value, pretty, level, ancestors, state) {
   const ownKeys = Reflect.ownKeys(value);
   if (ownKeys.some((key) => typeof key === 'symbol')) fail('Symbol properties are not supported');
   const keys = /** @type {string[]} */ (ownKeys);
@@ -72,7 +80,7 @@ function renderObject(value, pretty, level, ancestors) {
     const descriptor = Object.getOwnPropertyDescriptor(value, key);
     if (!descriptor?.enumerable) fail('Non-enumerable properties are not supported');
     if (!Object.hasOwn(descriptor, 'value')) fail('Accessor properties are not supported');
-    return `${key}:${pretty ? ' ' : ''}${renderValue(descriptor.value, pretty, level + 1, ancestors)}`;
+    return `${key}:${pretty ? ' ' : ''}${renderValue(descriptor.value, pretty, level + 1, ancestors, state)}`;
   });
   if (!pretty || entries.length === 0) return `{${entries.join(',')}}`;
   const indent = '  '.repeat(level + 1);
@@ -95,7 +103,7 @@ function renderDocument(events, pretty) {
     if (typeof nameDescriptor.value !== 'string' || !EVENT_NAME.test(nameDescriptor.value)) fail(`Invalid event name '${nameDescriptor.value}'`, 'E_INVALID_EVENT_NAME');
     const valueDescriptor = Object.getOwnPropertyDescriptor(event, 'value');
     if (valueDescriptor && (!valueDescriptor.enumerable || !Object.hasOwn(valueDescriptor, 'value'))) fail("Event 'value' must be an enumerable data property", 'E_INVALID_EVENT');
-    const value = valueDescriptor ? ` ${renderValue(valueDescriptor.value, pretty, 0, new Set())}` : '';
+    const value = valueDescriptor ? ` ${renderValue(valueDescriptor.value, pretty, 0, new Set(), { nodeCount: 0 })}` : '';
     return `${nameDescriptor.value}${value};`;
   });
   return pretty ? (lines.length ? lines.join('\n') + '\n' : '') : lines.join('');

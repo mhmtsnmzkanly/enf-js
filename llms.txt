@@ -5,6 +5,10 @@
 > is a compact protocol format, not a general-purpose programming language or a
 > drop-in replacement for JSON.
 
+## AI Authorship Disclaimer
+
+This entire project—including its specification, source implementation, test suites, benchmarks, and documentation—was authored completely by artificial intelligence without human intervention. As such, it may contain defects, theoretical oversights, subtle bugs, or inaccurate information. Users, developers, and autonomous models must independently audit and verify all code and claims before relying on them.
+
 ## Source of Truth
 
 - [docs/specification.md](./docs/specification.md) — normative ENF 1.0
@@ -19,6 +23,24 @@ specification defines the behavior.
 
 - [README.md](./README.md) — installation, quick start, runtime examples, API,
   CLI, limits, and security guidance.
+- [docs/best-practices.md](./docs/best-practices.md) — high-throughput patterns,
+  batching, stream framing, and memory optimizations.
+- [docs/for-who.md](./docs/for-who.md) — candid evaluation of ideal vs. unsuitable
+  use-cases and architectural decision matrix.
+- [docs/architecture.md](./docs/architecture.md) — AST-free engine internals,
+  lexer, parser, invariants, and error taxonomy.
+- [docs/from-json-to-enf.md](./docs/from-json-to-enf.md) — step-by-step migration
+  guide and zero-downtime dual-protocol gateway pattern.
+- [docs/security.md](./docs/security.md) — formal threat model, anti-DoS limits,
+  prototype hygiene, and vulnerability disclosure policy.
+- [docs/faq.md](./docs/faq.md) — frequently asked questions, syntax constraints,
+  and troubleshooting guide.
+- [docs/cli.md](./docs/cli.md) — CLI reference, atomic writes, Husky pre-commit hooks,
+  and GitHub Actions pipeline.
+- [docs/benchmarks.md](./docs/benchmarks.md) — empirical performance report,
+  throughput analysis, and reproduction steps.
+- [docs/recipes/README.md](./docs/recipes/README.md) — industrial-grade production
+  recipes for collaboration, IoT, IPC, WAL, and gateways.
 - [package.json](./package.json) — package metadata, exports, engines, and
   development commands.
 
@@ -67,3 +89,6 @@ These fixtures are implementation-independent JSON test data.
   document. Resource-limit failures are distinct from syntax failures.
 - `stringify()` validates in-process JavaScript values but is not a sandbox for
   hostile live objects or Proxy traps.
+- Consult `docs/` for domain guides: `best-practices.md` (high-throughput patterns),
+  `for-who.md` (decision matrix), `security.md` (threat model), `faq.md` (troubleshooting),
+  and `recipes/` (production implementations).

@@ -125,3 +125,10 @@ record in sequence.
   horizontal scaling.
 - It is an educational protocol demonstration, not a production deployment
   example.
+
+## Production Architecture & Recipes
+
+For full-featured production architectures beyond this in-memory chat demo, refer to:
+- [**Recipe 1: Real-Time Collaborative Canvas & Sync**](../docs/recipes/1-realtime-collaboration.md) — Rooms, micro-batching, and presence optimizations.
+- [**Recipe 5: Hardened Ingress Gateway**](../docs/recipes/5-hardened-gateway.md) — Anti-DoS protection, abuse tracking, and automatic IP quarantining.
+- [**Production Recipes Suite**](../docs/recipes/README.md) — Complete patterns for IoT telemetry, Unix IPC, and Write-Ahead Logs.

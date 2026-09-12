@@ -2,6 +2,9 @@
 
 > A compact event-driven communication protocol for WebSockets, TCP, IPC, event buses, and logs.
 
+> [!WARNING]
+> **AI-Generated Project Disclaimer:** This entire project—including its specification, implementation, test suites, and documentation—was authored autonomously by AI without human intervention. Consequently, it may contain imperfections, subtle bugs, edge-case omissions, or inaccurate information. Thoroughly review and audit before deploying in mission-critical or production environments.
+
 **ENF — Event Notation Format** is a compact text format for ordered event messages. It is event-first rather than a general-purpose JSON replacement.
 
 ```enf
@@ -42,6 +45,9 @@ ENF provides:
 * Browser, Node.js, and Deno support
 
 ENF deliberately avoids implicit newline rules, bare strings, comments, tuple syntax, parser recovery, and other features that could introduce ambiguity or hide data loss.
+
+> [!TIP]
+> **Should you use ENF?** Read our candid evaluation in [**Who Is ENF For?**](./docs/for-who.md) to understand where ENF excels (WebSockets, IoT telemetry, local IPC, Write-Ahead Logs) and where standard JSON or Protobuf is better suited (REST CRUD, document databases, binary media).
 
 ## Installation
 
@@ -148,6 +154,9 @@ message.send {
   id: 17
 };
 ```
+
+> [!TIP]
+> **Production Engineering:** For high-throughput stream framing, zero-exception parsing with `tryParse()`, and V8 memory optimizations, refer to the [**Best Practices & Performance Guide**](./docs/best-practices.md). Migrating an existing service? See the [**JSON to ENF Migration Guide**](./docs/from-json-to-enf.md).
 
 ## Browser
 
@@ -751,6 +760,9 @@ Invalid input never modifies the destination file.
 
 The CLI requires Node.js 18 or newer and is not intended for browser or Deno execution.
 
+> [!NOTE]
+> For CI/CD automation, GitHub Actions workflows, and Husky git pre-commit hooks for `.enf` files, see the [**CLI & CI/CD Guide**](./docs/cli.md).
+
 ## Errors
 
 ### `ENFSyntaxError`
@@ -890,6 +902,23 @@ Proxy traps can:
 
 Copy untrusted in-process objects into inert, caller-controlled plain data before passing them to `stringify()`.
 
+> [!IMPORTANT]
+> For the complete formal security model, ReDoS mitigations, prototype hygiene rules, and vulnerability reporting procedures, see the [**Security Model & Vulnerability Policy**](./docs/security.md).
+
+## Documentation & Guides
+
+Comprehensive guides, architectural deep-dives, and production recipes:
+
+* [**Best Practices & Performance Guide**](./docs/best-practices.md) — High-throughput patterns, stream framing, batching, and memory optimizations.
+* [**Who Is ENF For? (Candid Evaluation)**](./docs/for-who.md) — Architectural decision matrix: when to use ENF vs. when to stick with JSON or Protobuf.
+* [**Architecture & Internal Design**](./docs/architecture.md) — AST-free engine internals, lexical analysis, parser bounds, invariants, and error taxonomy.
+* [**Migrating from JSON to ENF**](./docs/from-json-to-enf.md) — Phased rollout roadmap and zero-downtime dual-protocol gateway pattern.
+* [**Security Model & Vulnerability Policy**](./docs/security.md) — Formal threat model, finite limits, prototype safety, and disclosure process.
+* [**Frequently Asked Questions (FAQ)**](./docs/faq.md) — Common syntax questions, constraints, and troubleshooting tips.
+* [**CLI & CI/CD Guide**](./docs/cli.md) — Static checking, atomic formatting, Husky pre-commit hooks, and GitHub Actions.
+* [**Performance Benchmarks Report**](./docs/benchmarks.md) — Empirical throughput data, memory analysis, and reproduction instructions.
+* [**Production Recipes Suite**](./docs/recipes/README.md) — End-to-end recipes for Realtime Collaboration, IoT Telemetry, IPC Event Buses, Event Sourcing WAL, and Hardened Gateways.
+
 ## Specification
 
 The normative, implementation-independent ENF 1.0 specification is available at:
@@ -962,6 +991,12 @@ Inspect the npm package contents:
 ```sh
 npm pack --dry-run
 ```
+
+Detailed performance metrics, throughput graphs, and comparisons with JSON are documented in the [**Performance Benchmarks Report**](./docs/benchmarks.md).
+
+## Questions & Support
+
+Have questions about syntax constraints, error codes, or integration? Check the [**Frequently Asked Questions (FAQ) & Troubleshooting**](./docs/faq.md).
 
 ## License
 

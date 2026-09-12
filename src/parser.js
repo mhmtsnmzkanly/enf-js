@@ -25,7 +25,7 @@ function limitsFrom(options = {}) {
     if (!Object.hasOwn(DEFAULT_LIMITS, key)) throw new ENFTypeError(`Unknown parse option '${key}'`, 'E_INVALID_OPTION');
   }
   for (const key of Object.keys(DEFAULT_LIMITS)) {
-    if (options[key] !== undefined) {
+    if (Object.hasOwn(options, key) && options[key] !== undefined) {
       if (!Number.isSafeInteger(options[key]) || options[key] < 1 || options[key] > DEFAULT_LIMITS[key]) {
         throw new ENFTypeError(`${key} must be an integer between 1 and ${DEFAULT_LIMITS[key]}`, 'E_INVALID_OPTION');
       }
@@ -67,8 +67,8 @@ class Parser {
     if (this.current.type === Token.EOF) {
       this.fail("Expected ';' after event", 'E_EXPECTED_SEMICOLON');
     } else if (this.current.type !== Token.SEMICOLON) {
-      const scalar = ![Token.LBRACE, Token.LBRACKET].includes(this.current.type);
-      if (scalar && this.current.start.offset === eventToken.end) this.fail('Scalar value must be separated from event name', 'E_UNEXPECTED_TOKEN');
+      const isScalar = [Token.STRING, Token.NUMBER, Token.WORD].includes(this.current.type);
+      if (isScalar && this.current.start.offset === eventToken.end) this.fail('Scalar value must be separated from event name', 'E_UNEXPECTED_TOKEN');
       event.value = this.value();
     }
     this.expect(Token.SEMICOLON, "Expected ';' after event", 'E_EXPECTED_SEMICOLON');
@@ -152,6 +152,7 @@ export function tryParse(source, options) {
   try { return { ok: true, value: parse(source, options) }; }
   catch (error) {
     if (error instanceof ENFSyntaxError || error instanceof ENFLimitError || error instanceof ENFTypeError) return { ok: false, error };
+    if (error instanceof RangeError) return { ok: false, error: new ENFLimitError(error.message, 'E_MAX_DEPTH') };
     throw error;
   }
 }

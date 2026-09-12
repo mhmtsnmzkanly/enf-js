@@ -17,7 +17,7 @@ export class Lexer {
   constructor(source, limits) {
     this.source = source;
     this.limits = limits;
-    this.offset = 0;
+    this.offset = source.charCodeAt(0) === 0xfeff ? 1 : 0;
     this.line = 1;
     this.column = 1;
   }
@@ -49,7 +49,10 @@ export class Lexer {
   }
 
   scanWord(start) {
-    while (isWordChar(this.peek())) this.advance();
+    while (isWordChar(this.peek())) {
+      if (this.offset - start.offset > 1024) throw new ENFLimitError('Maximum identifier length exceeded', 'E_MAX_IDENTIFIER_LENGTH');
+      this.advance();
+    }
     const text = this.source.slice(start.offset, this.offset);
     return { type: Token.WORD, text, value: text, start, end: this.offset };
   }

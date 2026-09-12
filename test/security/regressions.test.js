@@ -121,3 +121,61 @@ test('cli: bin/enf.js preserves symlinks during atomic writes', () => {
     rmSync(tempDir, { recursive: true, force: true });
   }
 });
+
+test('parser: limitsFrom prevents TOCTOU double-getter attack', () => {
+  let calls = 0;
+  const adversarialOptions = {
+    get maxDepth() {
+      calls++;
+      // If accessed multiple times, return valid value for check and NaN for use
+      return calls <= 2 ? 10 : NaN;
+    },
+  };
+  // With caching, maxDepth is read once and safely used without being re-evaluated to NaN
+  const parsed = parse('item [1];', adversarialOptions);
+  assert.deepEqual(parsed, [{ name: 'item', value: [1] }]);
+  assert.equal(calls, 1);
+});
+
+test('serializer: rejects sparse events arrays and non-canonical array keys', () => {
+  // Sparse events array
+  const sparseEvents = [{ name: 'ping' }, , { name: 'pong' }]; // eslint-disable-line no-sparse-arrays
+  assert.throws(() => stringify(sparseEvents), (err) => err instanceof ENFTypeError && err.code === 'E_SPARSE_ARRAY');
+
+  const emptySlotsEvents = [];
+  emptySlotsEvents.length = 3;
+  assert.throws(() => stringify(emptySlotsEvents), (err) => err instanceof ENFTypeError && err.code === 'E_SPARSE_ARRAY');
+
+  // Non-canonical index string properties ('01', '00')
+  const arrLeadingZero = ['a', 'b'];
+  arrLeadingZero['01'] = 'malicious';
+  assert.throws(() => stringify([{ name: 'x', value: arrLeadingZero }]), (err) => err instanceof ENFTypeError && err.code === 'E_INVALID_ARRAY');
+
+  const arrZeroZero = ['a'];
+  arrZeroZero['00'] = 'malicious';
+  assert.throws(() => stringify([{ name: 'x', value: arrZeroZero }]), (err) => err instanceof ENFTypeError && err.code === 'E_INVALID_ARRAY');
+});
+
+test('serializer: array element accessors/getters are rejected', () => {
+  const arr = [1];
+  let getterInvoked = false;
+  Object.defineProperty(arr, '0', {
+    get() { getterInvoked = true; return 42; },
+    enumerable: true,
+  });
+  assert.throws(() => stringify([{ name: 'x', value: arr }]), (err) => err instanceof ENFTypeError && err.code === 'E_INVALID_ARRAY');
+  assert.equal(getterInvoked, false);
+});
+
+test('lexer: truncated lone surrogate at EOF throws E_INVALID_STRING', () => {
+  // Unterminated raw lone high surrogate at the end of input
+  assert.throws(() => parse('x "' + String.fromCharCode(0xd800)), (err) => err.code === 'E_INVALID_STRING');
+});
+
+test('errors: ENFSyntaxError instantiation without location is safe', () => {
+  const err = new ENFSyntaxError('failed', 'E_TEST');
+  assert.equal(err.line, 1);
+  assert.equal(err.column, 1);
+  assert.equal(err.offset, 0);
+  assert.equal(err.code, 'E_TEST');
+});

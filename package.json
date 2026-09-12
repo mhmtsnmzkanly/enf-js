@@ -1,7 +1,7 @@
 {
   "name": "@mhmtsnmzkanly/enf-js",
   "private": false,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ENF 1.0 reference implementation for compact event protocol messages.",
   "type": "module",
   "main": "./src/index.js",
@@ -36,7 +36,13 @@
     "conformance"
   ],
   "sideEffects": false,
-  "keywords": ["event", "protocol", "serialization", "websocket", "ipc"],
+  "keywords": [
+    "event",
+    "protocol",
+    "serialization",
+    "websocket",
+    "ipc"
+  ],
   "license": "MIT",
   "devDependencies": {
     "esbuild": "^0.28.1",

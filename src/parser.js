@@ -25,11 +25,14 @@ function limitsFrom(options = {}) {
     if (!Object.hasOwn(DEFAULT_LIMITS, key)) throw new ENFTypeError(`Unknown parse option '${key}'`, 'E_INVALID_OPTION');
   }
   for (const key of Object.keys(DEFAULT_LIMITS)) {
-    if (Object.hasOwn(options, key) && options[key] !== undefined) {
-      if (!Number.isSafeInteger(options[key]) || options[key] < 1 || options[key] > DEFAULT_LIMITS[key]) {
-        throw new ENFTypeError(`${key} must be an integer between 1 and ${DEFAULT_LIMITS[key]}`, 'E_INVALID_OPTION');
+    if (Object.hasOwn(options, key)) {
+      const value = options[key];
+      if (value !== undefined) {
+        if (!Number.isSafeInteger(value) || value < 1 || value > DEFAULT_LIMITS[key]) {
+          throw new ENFTypeError(`${key} must be an integer between 1 and ${DEFAULT_LIMITS[key]}`, 'E_INVALID_OPTION');
+        }
+        limits[key] = value;
       }
-      limits[key] = options[key];
     }
   }
   return limits;
